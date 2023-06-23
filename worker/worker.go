@@ -1,21 +1,27 @@
-package worker
+package main
 
 import (
+	"go-learning/initializers"
+
 	"github.com/RichardKnop/machinery/v1"
 	"go.uber.org/zap"
 )
 
 var (
-	Logger *zap.SugaredLogger
+	Logger     *zap.SugaredLogger
+	taskserver *machinery.Server
 )
 
 func init() {
 	logger, _ := zap.NewProduction()
 	Logger = logger.Sugar()
+
+	taskserver = initializers.GetMachineryServer()
+
 }
 
-// This function starts a worker for a task server in Go.
-func StartWorker(taskserver *machinery.Server) error {
+// // This function starts a worker for a task server in Go.
+func main() {
 	Logger.Info("initing worker")
 
 	// This line of code is creating a new worker instance for a task server using the `NewWorker` method
@@ -23,7 +29,7 @@ func StartWorker(taskserver *machinery.Server) error {
 	// worker, and the second argument `10` is the number of concurrent worker processes to run.
 	worker := taskserver.NewWorker("machinery_worker", 10)
 	if err := worker.Launch(); err != nil {
-		return err
+		Logger.Fatal(err, "could not launch the worker")
 	}
-	return nil
+
 }
